@@ -32,10 +32,10 @@ locals {
   aws_account_id         = "123456789012"
   environment            = "dev"
   cluster_version        = "1.29.2"
-  gitops_addons_url      = "https://github.com:davejfranco/tf-gitops-bridge"
+  gitops_addons_url      = "https://github.com/davejfranco/tf-gitops-bridge"
   gitops_addons_basepath = ""
   gitops_addons_path     = "platform/addons"
-  gitops_addons_revision = "HEAD"
+  gitops_addons_revision = "master"
 
   cluster_addons = {
     enable_external_secrets = true
@@ -79,6 +79,11 @@ locals {
 module "gitops_bridge_bootstrap" {
   source  = "gitops-bridge-dev/gitops-bridge/helm"
   version = "0.1.0"
+  
+  argocd = {
+    name      = "argocd"
+    namespace = "argocd"
+  }
 
   cluster = {
     cluster_name = local.name

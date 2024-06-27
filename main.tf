@@ -28,26 +28,35 @@ provider "helm" {
 locals {
   name                   = "kind-local"
   aws_region             = "us-west-2"
-  vpc_id                 = "vpc-12345678"
+  aws_vpc_id             = "vpc-12345678"
+  aws_account_id         = "123456789012"
   environment            = "dev"
   cluster_version        = "1.29.2"
-  gitops_addons_url      = "https://github.com/gitops-bridge-dev/gitops-bridge-argocd-control-plane-template"
+  gitops_addons_url      = "https://github.com:davejfranco/tf-gitops-bridge"
   gitops_addons_basepath = ""
-  gitops_addons_path     = "bootstrap/control-plane/addons"
+  gitops_addons_path     = "platform/addons"
   gitops_addons_revision = "HEAD"
 
-  oss_addons = {
-    enable_argo_workflows = true
+  cluster_addons = {
+    enable_external_secrets = true
+    enable_external_dns     = true
+    enable_cert_manager     = true
   }
 
-  addons = merge(local.oss_addons, { kubernetes_version = local.cluster_version })
+  addons = merge(
+    local.cluster_addons,
+    {
+      kubernetes_version = local.cluster_version
+    }
+  )
 
   addons_metadata = merge(
     {
       cluster_name = local.name
       environment  = local.environment
+      account_id   = local.aws_account_id
       region       = local.aws_region
-      vpc_id       = local.vpc_id
+      vpc_id       = local.aws_vpc_id
     },
     {
       addons_repo_url      = local.gitops_addons_url
